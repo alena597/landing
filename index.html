@@ -42,7 +42,18 @@
       background: #050810;
       color: #eef2ff;
       padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
     }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.3rem; margin: 2rem 0 1rem; color: #8899bb; }
+    p, li { line-height: 1.7; color: #8899bb; }
+    ul, ol { padding-left: 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+    a { color: #00e5ff; }
+    nav ul { list-style: none; padding: 0; display: flex; gap: 2rem; margin-bottom: 3rem; }
+    .keywords { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .keyword { padding: 0.3rem 0.8rem; border: 1px solid #2a3858; border-radius: 999px; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -50,40 +61,115 @@
     <nav role="navigation" aria-label="Головна навігація">
       <ul>
         <li><a href="#about">Про роботу</a></li>
+        <li><a href="#relevance">Актуальність</a></li>
         <li><a href="#objectives">Завдання</a></li>
+        <li><a href="#methodology">Методологія</a></li>
+        <li><a href="#results">Результати</a></li>
         <li><a href="#contact">Контакт</a></li>
       </ul>
     </nav>
   </header>
 
   <main role="main">
+
     <section id="about" aria-labelledby="title-main">
-      <h1 id="title-main">AI Transparency Media Lab</h1>
-      <h2>Про дипломну роботу</h2>
-      <p>Інформаційна система інтелектуального аналізу медіаконтенту</p>
+      <h1 id="title-main">
+        Інформаційна система інтелектуального аналізу медіаконтенту
+        з анімованою візуалізацією результатів розпізнавання об'єктів та тексту
+      </h1>
+      <p style="margin-top:0.5rem;font-size:0.9rem;color:#6b7280">
+        Information System for Intelligent Media Content Analysis
+        with Animated Visualization of Object and Text Recognition Results
+      </p>
+      <p style="margin-top:1.5rem">
+        Веб-застосунок для автоматизованої обробки неструктурованих медіаданих
+        з використанням технологій машинного зору та обробки природної мови.
+        Всі AI-моделі працюють безпосередньо у браузері без передачі даних на сервер.
+      </p>
+      <div class="keywords" aria-label="Ключові слова">
+        <span class="keyword">OCR</span>
+        <span class="keyword">TensorFlow.js</span>
+        <span class="keyword">Machine Learning</span>
+        <span class="keyword">Computer Vision</span>
+        <span class="keyword">React SPA</span>
+        <span class="keyword">COCO-SSD</span>
+        <span class="keyword">MobileNet</span>
+        <span class="keyword">Tesseract.js</span>
+        <span class="keyword">GSAP</span>
+        <span class="keyword">Sentiment Analysis</span>
+      </div>
+    </section>
+
+    <section id="relevance" aria-labelledby="title-relevance">
+      <h2 id="title-relevance">Актуальність теми</h2>
+      <p>
+        В умовах стрімкого зростання обсягів цифрового медіаконтенту виникає
+        нагальна потреба в інструментах для його автоматизованої обробки та аналізу.
+        Існуючі рішення переважно потребують серверної інфраструктури та передачі
+        конфіденційних даних. Розробка клієнтської системи на базі сучасних
+        JavaScript AI-бібліотек дозволяє вирішити цю проблему.
+      </p>
     </section>
 
     <section id="objectives" aria-labelledby="title-objectives">
-      <h2 id="title-objectives">Завдання дослідження</h2>
-      <ul aria-label="Перелік завдань">
-        <li>Завдання 1</li>
-        <li>Завдання 2</li>
-        <li>Завдання 3</li>
+      <h2 id="title-objectives">Мета та завдання дослідження</h2>
+      <p>
+        <strong>Мета:</strong> створення інтелектуального інструменту для
+        автоматизованої обробки неструктурованих медіаданих з використанням
+        технологій машинного зору та NLP безпосередньо у браузері.
+      </p>
+      <ol aria-label="Основні завдання дослідження" style="margin-top:1rem">
+        <li>Дослідити існуючі методи та технології інтелектуального аналізу медіаконтенту</li>
+        <li>Спроектувати архітектуру клієнтської SPA з модульною структурою AI-компонентів</li>
+        <li>Реалізувати модуль OCR з підтримкою багатомовного розпізнавання та візуалізацією bounding boxes</li>
+        <li>Розробити модуль класифікації та детекції об'єктів на базі TensorFlow.js</li>
+        <li>Впровадити анімаційний движок GSAP для забезпечення AI Transparency інтерфейсу</li>
+      </ol>
+    </section>
+
+    <section id="methodology" aria-labelledby="title-methodology">
+      <h2 id="title-methodology">Методологія дослідження</h2>
+      <ul>
+        <li><strong>Client-Side AI</strong> — всі моделі виконуються у браузері, дані не передаються на сервер</li>
+        <li><strong>AI Transparency</strong> — користувач бачить кожен крок аналізу через анімовані оверлеї</li>
+        <li><strong>Модульна архітектура</strong> — кожен AI-модуль є незалежним React-компонентом</li>
+      </ul>
+    </section>
+
+    <section id="results" aria-labelledby="title-results">
+      <h2 id="title-results">Очікувані результати</h2>
+      <ul>
+        <li>Робочий веб-застосунок з чотирма AI-модулями (OCR, Gallery, Detection, Transcriber)</li>
+        <li>Час обробки зображення OCR до 10 секунд</li>
+        <li>Детекція об'єктів у реальному часі зі швидкістю 15+ FPS</li>
+        <li>Анімації інтерфейсу не менше 60 FPS</li>
+        <li>Кросбраузерна сумісність: Chrome, Firefox, Safari, Edge</li>
       </ul>
     </section>
 
     <section id="contact" aria-labelledby="title-contact">
       <h2 id="title-contact">Контактна інформація</h2>
       <address>
-        <a href="mailto:a.yarmola@student.sumdu.edu.ua" aria-label="Написати електронний лист автору">
-          a.yarmola@student.sumdu.edu.ua
-        </a>
+        <p><strong>Автор:</strong> Ярмола Альона</p>
+        <p><strong>Група:</strong> ІН-21</p>
+        <p><strong>Університет:</strong> Сумський державний університет</p>
+        <p><strong>Email:</strong>
+          <a href="mailto:a.yarmola@student.sumdu.edu.ua" aria-label="Написати електронний лист">
+            a.yarmola@student.sumdu.edu.ua
+          </a>
+        </p>
+        <p><strong>GitHub:</strong>
+          <a href="https://github.com/alena597/media-insight-hub" target="_blank" rel="noopener" aria-label="Репозиторій проєкту на GitHub">
+            github.com/alena597/media-insight-hub
+          </a>
+        </p>
       </address>
     </section>
+
   </main>
 
   <footer role="contentinfo">
-    <p>© 2026 Ярмола Альона · Сумський державний університет</p>
+    <p>© 2026 Ярмола Альона · Сумський державний університет · Кафедра комп'ютерних наук</p>
   </footer>
 </body>
 </html>
