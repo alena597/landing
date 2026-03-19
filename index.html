@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Інформаційна система інтелектуального аналізу медіаконтенту з анімованою візуалізацією результатів розпізнавання об'єктів та тексту." />
-  <meta name="keywords" content="OCR, TensorFlow, машинне навчання, медіааналіз, React, дипломна робота, СумДУ" />
+  <meta name="description" content="Інформаційна система інтелектуального аналізу медіаконтенту з анімованою візуалізацією результатів розпізнавання об'єктів та тексту. Дипломна робота студентки СумДУ Ярмоли Альони." />
+  <meta name="keywords" content="OCR, розпізнавання тексту, TensorFlow, машинне навчання, медіааналіз, React, Tesseract, COCO-SSD, дипломна робота, СумДУ" />
   <meta name="author" content="Ярмола Альона" />
   <meta name="robots" content="index, follow" />
-  
+
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AI Transparency Media Lab — Дипломна робота" />
   <meta property="og:description" content="Інформаційна система інтелектуального аналізу медіаконтенту з анімованою візуалізацією результатів розпізнавання об'єктів та тексту." />
@@ -18,7 +18,7 @@
   {
     "@context": "https://schema.org",
     "@type": "ScholarlyArticle",
-    "name": "Інформаційна система інтелектуального аналізу медіаконтенту",
+    "name": "Інформаційна система інтелектуального аналізу медіаконтенту з анімованою візуалізацією результатів розпізнавання об'єктів та тексту",
     "author": {
       "@type": "Person",
       "name": "Ярмола Альона",
@@ -35,141 +35,856 @@
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, sans-serif;
-      background: #050810;
-      color: #eef2ff;
-      padding: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
+
+    :root {
+      --bg: #050810;
+      --bg2: #0c1020;
+      --bg3: #111828;
+      --border: #1e2840;
+      --border2: #2a3858;
+      --cyan: #00e5ff;
+      --cyan2: #00b8d4;
+      --purple: #7c6af7;
+      --green: #00e676;
+      --amber: #ffb300;
+      --text1: #eef2ff;
+      --text2: #8899bb;
+      --text3: #3d4f70;
+      --display: 'Syne', sans-serif;
+      --mono: 'DM Mono', monospace;
     }
-    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    h2 { font-size: 1.3rem; margin: 2rem 0 1rem; color: #8899bb; }
-    p, li { line-height: 1.7; color: #8899bb; }
-    ul, ol { padding-left: 1.5rem; }
-    li { margin-bottom: 0.5rem; }
-    a { color: #00e5ff; }
-    nav ul { list-style: none; padding: 0; display: flex; gap: 2rem; margin-bottom: 3rem; }
-    .keywords { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-    .keyword { padding: 0.3rem 0.8rem; border: 1px solid #2a3858; border-radius: 999px; font-size: 0.8rem; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text1);
+      font-family: var(--display);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    .cursor {
+      position: fixed;
+      width: 8px; height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(0,229,255,0.4);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .university-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 2.5rem;
+      background: rgba(5,8,16,0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+    .university-bar img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      filter: brightness(0) invert(1) opacity(0.5);
+      flex-shrink: 0;
+    }
+    .university-bar span {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      color: var(--text3);
+      letter-spacing: 0.05em;
+    }
+
+    nav {
+      position: fixed;
+      top: 37px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2.5rem;
+      background: rgba(5,8,16,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 0.85rem;
+      font-family: var(--mono);
+      color: var(--cyan);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.78rem;
+      font-family: var(--mono);
+      color: var(--text2);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    section { position: relative; z-index: 1; }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 1rem;
+      border: 1px solid var(--border2);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      background: rgba(0,229,255,0.05);
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse 2s infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      max-width: 900px;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+    .hero-title-en {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      font-weight: 400;
+      color: var(--text2);
+      font-family: var(--mono);
+      max-width: 700px;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+    .accent { color: var(--cyan); }
+    .accent-purple { color: var(--purple); }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--text2);
+      max-width: 600px;
+      line-height: 1.7;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.8s 0.4s ease both;
+    }
+
+    .btn-primary {
+      padding: 0.85rem 2rem;
+      background: var(--cyan);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: none;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--cyan2); transform: translateY(-2px); }
+
+    .btn-secondary {
+      padding: 0.85rem 2rem;
+      background: transparent;
+      color: var(--text1);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: none;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      padding: 3rem 2rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg2);
+      flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--cyan);
+      font-family: var(--mono);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text2);
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 0.25rem;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--text2); line-height: 1.7; max-width: 600px; }
+
+    .modules { padding: 6rem 0; }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .module-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .module-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+      border-radius: 16px;
+    }
+    .module-card:hover { border-color: var(--border2); transform: translateY(-4px); }
+    .module-card:hover::before { opacity: 1; }
+    .module-card--ocr::before { background: radial-gradient(circle at 0% 0%, rgba(0,229,255,0.06), transparent 60%); }
+    .module-card--gallery::before { background: radial-gradient(circle at 0% 0%, rgba(124,106,247,0.06), transparent 60%); }
+    .module-card--detection::before { background: radial-gradient(circle at 0% 0%, rgba(0,230,118,0.06), transparent 60%); }
+    .module-card--transcriber::before { background: radial-gradient(circle at 0% 0%, rgba(255,179,0,0.06), transparent 60%); }
+
+    .module-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1.25rem;
+    }
+    .module-icon--ocr { background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2); }
+    .module-icon--gallery { background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.2); }
+    .module-icon--detection { background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.2); }
+    .module-icon--transcriber { background: rgba(255,179,0,0.1); border: 1px solid rgba(255,179,0,0.2); }
+
+    .module-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+    .module-tag--ocr { background: rgba(0,229,255,0.1); color: var(--cyan); }
+    .module-tag--gallery { background: rgba(124,106,247,0.1); color: var(--purple); }
+    .module-tag--detection { background: rgba(0,230,118,0.1); color: var(--green); }
+    .module-tag--transcriber { background: rgba(255,179,0,0.1); color: var(--amber); }
+
+    .module-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .module-desc { font-size: 0.88rem; color: var(--text2); line-height: 1.6; }
+
+    .screenshots { padding: 6rem 0; background: var(--bg2); }
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    figure { margin: 0; }
+    .screenshot-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+    .screenshot-img:hover { transform: scale(1.02); border-color: var(--border2); }
+    figcaption {
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      color: var(--text3);
+      text-align: center;
+      margin-top: 0.6rem;
+    }
+    .scheme-img {
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+      margin: 2rem auto 0;
+    }
+
+    .objectives { padding: 6rem 0; }
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    .obj-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .obj-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.25rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: border-color 0.2s;
+    }
+    .obj-item:hover { border-color: var(--border2); }
+    .obj-num { font-family: var(--mono); font-size: 0.72rem; color: var(--cyan); min-width: 24px; margin-top: 2px; }
+    .obj-text { font-size: 0.9rem; color: var(--text2); line-height: 1.5; }
+
+    .results-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .result-item { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text2); }
+    .result-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    .stack { padding: 6rem 0; background: var(--bg2); }
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .stack-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .stack-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+    .stack-icon { font-size: 1.8rem; margin-bottom: 0.75rem; display: block; }
+    .stack-name { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .stack-role { font-size: 0.72rem; color: var(--text2); font-family: var(--mono); }
+
+    .methodology { padding: 6rem 0; }
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .method-card {
+      padding: 1.75rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .method-num { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--border2); margin-bottom: 1rem; display: block; }
+    .method-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .method-text { font-size: 0.85rem; color: var(--text2); line-height: 1.6; }
+
+    .keywords-section { padding: 4rem 0; background: var(--bg2); }
+    .keywords-wrap { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+    .keyword {
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border2);
+      border-radius: 999px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text2);
+      background: var(--bg3);
+      transition: all 0.2s;
+    }
+    .keyword:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,0.05); }
+
+    .contact { padding: 6rem 0; text-align: center; position: relative; }
+    .contact-glow {
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,106,247,0.08) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .contact-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 640px;
+      margin: 3rem auto 0;
+      position: relative;
+    }
+    .contact-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .contact-role { font-size: 0.85rem; color: var(--text2); font-family: var(--mono); margin-bottom: 2rem; }
+    .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text2);
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: none;
+    }
+    .contact-link:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text3);
+      background: var(--bg2);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,229,255,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 6px transparent; }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem; top: 33px; }
+      .nav-links { display: none; }
+      .university-bar { padding: 0.5rem 1rem; }
+      .modules-grid { grid-template-columns: 1fr; }
+      .objectives-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .stack-grid { grid-template-columns: repeat(2, 1fr); }
+      .method-grid { grid-template-columns: 1fr; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+      .hero { padding: 9rem 1.5rem 3rem; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+    }
   </style>
 </head>
+
 <body>
-  <header role="banner">
-    <nav role="navigation" aria-label="Головна навігація">
-      <ul>
-        <li><a href="#about">Про роботу</a></li>
-        <li><a href="#relevance">Актуальність</a></li>
-        <li><a href="#objectives">Завдання</a></li>
-        <li><a href="#methodology">Методологія</a></li>
-        <li><a href="#results">Результати</a></li>
-        <li><a href="#contact">Контакт</a></li>
-      </ul>
-    </nav>
-  </header>
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursor-ring" aria-hidden="true"></div>
 
-  <main role="main">
+  <div class="university-bar" role="banner" aria-label="Університет">
+    <img src="sumdu-logo.png" alt="Логотип Сумського державного університету" width="28" height="28" />
+    <span>Сумський державний університет · Кафедра комп'ютерних наук · 2026</span>
+  </div>
 
-    <section id="about" aria-labelledby="title-main">
-      <h1 id="title-main">
-        Інформаційна система інтелектуального аналізу медіаконтенту
-        з анімованою візуалізацією результатів розпізнавання об'єктів та тексту
-      </h1>
-      <p style="margin-top:0.5rem;font-size:0.9rem;color:#6b7280">
-        Information System for Intelligent Media Content Analysis
-        with Animated Visualization of Object and Text Recognition Results
-      </p>
-      <p style="margin-top:1.5rem">
-        Веб-застосунок для автоматизованої обробки неструктурованих медіаданих
-        з використанням технологій машинного зору та обробки природної мови.
-        Всі AI-моделі працюють безпосередньо у браузері без передачі даних на сервер.
-      </p>
-      <div class="keywords" aria-label="Ключові слова">
-        <span class="keyword">OCR</span>
-        <span class="keyword">TensorFlow.js</span>
-        <span class="keyword">Machine Learning</span>
-        <span class="keyword">Computer Vision</span>
-        <span class="keyword">React SPA</span>
-        <span class="keyword">COCO-SSD</span>
-        <span class="keyword">MobileNet</span>
-        <span class="keyword">Tesseract.js</span>
-        <span class="keyword">GSAP</span>
-        <span class="keyword">Sentiment Analysis</span>
+  <nav role="navigation" aria-label="Головна навігація">
+    <div class="nav-logo">AI Media Lab</div>
+    <ul class="nav-links">
+      <li><a href="#modules">Модулі</a></li>
+      <li><a href="#objectives">Завдання</a></li>
+      <li><a href="#stack">Технології</a></li>
+      <li><a href="#contact">Контакт</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-badge" role="status">
+      <span class="hero-badge-dot" aria-hidden="true"></span>
+      Дипломна робота · СумДУ · 2026
+    </div>
+    <h1 class="hero-title" id="hero-title">
+      Інформаційна система<br/>
+      <span class="accent">інтелектуального аналізу</span><br/>
+      медіаконтенту
+    </h1>
+    <p class="hero-title-en">
+      Information System for Intelligent Media Content Analysis<br/>
+      with Animated Visualization of Object and Text Recognition Results
+    </p>
+    <p class="hero-desc">
+      Веб-застосунок для автоматизованої обробки неструктурованих медіаданих
+      з використанням технологій машинного зору та обробки природної мови.
+      Всі AI-моделі працюють безпосередньо у браузері.
+    </p>
+    <div class="hero-buttons">
+      <a href="https://github.com/alena597/media-insight-hub" target="_blank" rel="noopener" class="btn-primary" aria-label="Переглянути код на GitHub">
+        GitHub →
+      </a>
+      <a href="#modules" class="btn-secondary">Детальніше</a>
+    </div>
+  </section>
+
+  <div class="stats" role="region" aria-label="Статистика проєкту">
+    <div class="stat">
+      <span class="stat-num" aria-label="Чотири AI-модулі">4</span>
+      <span class="stat-label">AI-модулі</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" aria-label="Менше п'яти секунд">&lt;5s</span>
+      <span class="stat-label">Час обробки</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" aria-label="100 відсотків клієнтська обробка">100%</span>
+      <span class="stat-label">Client-Side AI</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" aria-label="60 кадрів на секунду">60fps</span>
+      <span class="stat-label">Анімації</span>
+    </div>
+  </div>
+
+  <section class="modules" id="modules" aria-labelledby="modules-title">
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Функціональні модулі</p>
+      <h2 class="section-title" id="modules-title">Чотири модулі <span class="accent">аналізу</span></h2>
+      <p class="section-desc">Кожен модуль реалізує окремий вид аналізу медіаконтенту з прозорою візуалізацією роботи алгоритму.</p>
+      <div class="modules-grid">
+        <article class="module-card module-card--ocr fade-in" aria-labelledby="mod-ocr">
+          <div class="module-icon module-icon--ocr" aria-hidden="true">⌨</div>
+          <span class="module-tag module-tag--ocr">Tesseract.js · OCR</span>
+          <h3 class="module-title" id="mod-ocr">OCR Lab</h3>
+          <p class="module-desc">Вилучення друкованого тексту з графічних файлів. Підтримка української та англійської мов. Анімація лазерного сканування та виділення розпізнаних блоків Bounding Boxes.</p>
+        </article>
+        <article class="module-card module-card--gallery fade-in" aria-labelledby="mod-gallery">
+          <div class="module-icon module-icon--gallery" aria-hidden="true">🖼</div>
+          <span class="module-tag module-tag--gallery">MobileNet v2 · Vision</span>
+          <h3 class="module-title" id="mod-gallery">Smart Gallery</h3>
+          <p class="module-desc">Автоматична класифікація пачки фотографій. Визначення категорій: люди, тварини, техніка, документи. Анімоване переміщення карток у відповідні категорії.</p>
+        </article>
+        <article class="module-card module-card--detection fade-in" aria-labelledby="mod-detection">
+          <div class="module-icon module-icon--detection" aria-hidden="true">◎</div>
+          <span class="module-tag module-tag--detection">COCO-SSD · Detection</span>
+          <h3 class="module-title" id="mod-detection">Object Detection</h3>
+          <p class="module-desc">Пошук та ідентифікація об'єктів у статичному зображенні або відеопотоці веб-камери в режимі реального часу. Confidence score для кожного об'єкта.</p>
+        </article>
+        <article class="module-card module-card--transcriber fade-in" aria-labelledby="mod-transcriber">
+          <div class="module-icon module-icon--transcriber" aria-hidden="true">🎙</div>
+          <span class="module-tag module-tag--transcriber">Web Speech · NLP</span>
+          <h3 class="module-title" id="mod-transcriber">Media Transcriber</h3>
+          <p class="module-desc">Перетворення голосової доріжки в текст та аналіз емоційного фону. Визначення тональності: позитивна, негативна, нейтральна. Колірна індикація результатів.</p>
+        </article>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section id="relevance" aria-labelledby="title-relevance">
-      <h2 id="title-relevance">Актуальність теми</h2>
-      <p>
-        В умовах стрімкого зростання обсягів цифрового медіаконтенту виникає
-        нагальна потреба в інструментах для його автоматизованої обробки та аналізу.
-        Існуючі рішення переважно потребують серверної інфраструктури та передачі
-        конфіденційних даних. Розробка клієнтської системи на базі сучасних
-        JavaScript AI-бібліотек дозволяє вирішити цю проблему.
-      </p>
-    </section>
+  <section class="screenshots" aria-labelledby="screenshots-title">
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Інтерфейс застосунку</p>
+      <h2 class="section-title" id="screenshots-title">Скріншоти <span class="accent">системи</span></h2>
+      <p class="section-desc">Реальний інтерфейс застосунку під час роботи AI-модулів.</p>
+      <div class="screenshots-grid">
+        <figure class="fade-in">
+          <img
+            src="screenshot-dashboard.jpg"
+            alt="Головна сторінка застосунку AI Transparency Media Lab з чотирма модулями аналізу"
+            class="screenshot-img"
+            width="540"
+            height="220"
+            loading="lazy"
+          />
+          <figcaption>Рис. 1 — Дашборд застосунку з чотирма AI-модулями</figcaption>
+        </figure>
+        <figure class="fade-in">
+          <img
+            src="screenshot-ocr.jpg"
+            alt="Модуль OCR з результатами розпізнавання тексту та виділенням bounding boxes"
+            class="screenshot-img"
+            width="540"
+            height="220"
+            loading="lazy"
+          />
+          <figcaption>Рис. 2 — Модуль OCR Lab з результатами розпізнавання</figcaption>
+        </figure>
+      </div>
+      <figure class="fade-in">
+        <img
+          src="ocr-scheme.jpg"
+          alt="Схема роботи OCR модуля — від вхідного зображення до розпізнаного тексту"
+          class="scheme-img"
+          width="800"
+          height="400"
+          loading="lazy"
+        />
+        <figcaption style="text-align:center;margin-top:0.6rem;font-size:0.72rem;font-family:var(--mono);color:var(--text3)">Рис. 3 — Схема роботи модуля розпізнавання тексту</figcaption>
+      </figure>
+    </div>
+  </section>
 
-    <section id="objectives" aria-labelledby="title-objectives">
-      <h2 id="title-objectives">Мета та завдання дослідження</h2>
-      <p>
-        <strong>Мета:</strong> створення інтелектуального інструменту для
-        автоматизованої обробки неструктурованих медіаданих з використанням
-        технологій машинного зору та NLP безпосередньо у браузері.
-      </p>
-      <ol aria-label="Основні завдання дослідження" style="margin-top:1rem">
-        <li>Дослідити існуючі методи та технології інтелектуального аналізу медіаконтенту</li>
-        <li>Спроектувати архітектуру клієнтської SPA з модульною структурою AI-компонентів</li>
-        <li>Реалізувати модуль OCR з підтримкою багатомовного розпізнавання та візуалізацією bounding boxes</li>
-        <li>Розробити модуль класифікації та детекції об'єктів на базі TensorFlow.js</li>
-        <li>Впровадити анімаційний движок GSAP для забезпечення AI Transparency інтерфейсу</li>
-      </ol>
-    </section>
+  <section class="objectives" id="objectives" aria-labelledby="obj-title">
+    <div class="container">
+      <div class="objectives-grid">
+        <div>
+          <p class="section-label" aria-hidden="true">// Мета та завдання</p>
+          <h2 class="section-title" id="obj-title">Основні <span class="accent">завдання</span></h2>
+          <ol class="obj-list" aria-label="Перелік завдань дослідження">
+            <li class="obj-item fade-in">
+              <span class="obj-num" aria-hidden="true">01</span>
+              <span class="obj-text">Дослідити та проаналізувати існуючі методи та технології інтелектуального аналізу медіаконтенту</span>
+            </li>
+            <li class="obj-item fade-in">
+              <span class="obj-num" aria-hidden="true">02</span>
+              <span class="obj-text">Спроектувати архітектуру клієнтської SPA з модульною структурою AI-компонентів</span>
+            </li>
+            <li class="obj-item fade-in">
+              <span class="obj-num" aria-hidden="true">03</span>
+              <span class="obj-text">Реалізувати модуль OCR з підтримкою багатомовного розпізнавання та візуалізацією bounding boxes</span>
+            </li>
+            <li class="obj-item fade-in">
+              <span class="obj-num" aria-hidden="true">04</span>
+              <span class="obj-text">Розробити модуль класифікації та детекції об'єктів на базі TensorFlow.js</span>
+            </li>
+            <li class="obj-item fade-in">
+              <span class="obj-num" aria-hidden="true">05</span>
+              <span class="obj-text">Впровадити анімаційний движок GSAP для забезпечення AI Transparency інтерфейсу</span>
+            </li>
+          </ol>
+        </div>
+        <div>
+          <p class="section-label" aria-hidden="true">// Очікувані результати</p>
+          <h2 class="section-title">Результати <span class="accent-purple">роботи</span></h2>
+          <ul class="results-list" aria-label="Очікувані результати дослідження">
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Робочий веб-застосунок з чотирма AI-модулями</li>
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Час обробки зображення OCR до 10 секунд</li>
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Підтримка детекції об'єктів у реальному часі (15+ FPS)</li>
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Анімації інтерфейсу не менше 60 FPS</li>
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Повністю клієнтська обробка без передачі даних на сервер</li>
+            <li class="result-item fade-in"><span class="result-dot" aria-hidden="true"></span>Сумісність з Chrome, Firefox, Safari, Edge</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section id="methodology" aria-labelledby="title-methodology">
-      <h2 id="title-methodology">Методологія дослідження</h2>
-      <ul>
-        <li><strong>Client-Side AI</strong> — всі моделі виконуються у браузері, дані не передаються на сервер</li>
-        <li><strong>AI Transparency</strong> — користувач бачить кожен крок аналізу через анімовані оверлеї</li>
-        <li><strong>Модульна архітектура</strong> — кожен AI-модуль є незалежним React-компонентом</li>
-      </ul>
-    </section>
+  <section class="stack" id="stack" aria-labelledby="stack-title">
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Технічний стек</p>
+      <h2 class="section-title" id="stack-title">Технології <span class="accent">проєкту</span></h2>
+      <div class="stack-grid">
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="React">⚛</span><div class="stack-name">React 18 + Vite</div><div class="stack-role">Frontend Framework</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="TypeScript">TS</span><div class="stack-name">TypeScript</div><div class="stack-role">Типізація коду</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="TensorFlow">🧠</span><div class="stack-name">TensorFlow.js</div><div class="stack-role">AI Engine</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="Tesseract">📄</span><div class="stack-name">Tesseract.js</div><div class="stack-role">OCR Engine</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="COCO-SSD">🎯</span><div class="stack-name">COCO-SSD</div><div class="stack-role">Object Detection</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="MobileNet">📸</span><div class="stack-name">MobileNet v2</div><div class="stack-role">Image Classification</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="GSAP">✨</span><div class="stack-name">GSAP 3</div><div class="stack-role">Анімації</div></div>
+        <div class="stack-card fade-in"><span class="stack-icon" role="img" aria-label="Web Speech API">🎙</span><div class="stack-name">Web Speech API</div><div class="stack-role">Транскрибація</div></div>
+      </div>
+    </div>
+  </section>
 
-    <section id="results" aria-labelledby="title-results">
-      <h2 id="title-results">Очікувані результати</h2>
-      <ul>
-        <li>Робочий веб-застосунок з чотирма AI-модулями (OCR, Gallery, Detection, Transcriber)</li>
-        <li>Час обробки зображення OCR до 10 секунд</li>
-        <li>Детекція об'єктів у реальному часі зі швидкістю 15+ FPS</li>
-        <li>Анімації інтерфейсу не менше 60 FPS</li>
-        <li>Кросбраузерна сумісність: Chrome, Firefox, Safari, Edge</li>
-      </ul>
-    </section>
+  <section class="methodology" aria-labelledby="method-title">
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Методологія</p>
+      <h2 class="section-title" id="method-title">Підхід до <span class="accent">розробки</span></h2>
+      <div class="method-grid">
+        <div class="method-card fade-in">
+          <span class="method-num" aria-hidden="true">01</span>
+          <h3 class="method-title">Client-Side AI</h3>
+          <p class="method-text">Всі нейромережеві моделі завантажуються та виконуються безпосередньо у браузері. Дані не передаються на зовнішні сервери, що забезпечує конфіденційність.</p>
+        </div>
+        <div class="method-card fade-in">
+          <span class="method-num" aria-hidden="true">02</span>
+          <h3 class="method-title">AI Transparency</h3>
+          <p class="method-text">Концепція прозорості алгоритмів — користувач бачить кожен крок аналізу в режимі реального часу через анімовані оверлеї, bounding boxes та лог операцій.</p>
+        </div>
+        <div class="method-card fade-in">
+          <span class="method-num" aria-hidden="true">03</span>
+          <h3 class="method-title">Модульна архітектура</h3>
+          <p class="method-text">Кожен AI-модуль є незалежним React-компонентом з власним хуком, сервісним шаром та CSS-стилями. Це забезпечує масштабованість та легкість підтримки.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <section id="contact" aria-labelledby="title-contact">
-      <h2 id="title-contact">Контактна інформація</h2>
-      <address>
-        <p><strong>Автор:</strong> Ярмола Альона</p>
-        <p><strong>Група:</strong> ІН-21</p>
-        <p><strong>Університет:</strong> Сумський державний університет</p>
-        <p><strong>Email:</strong>
-          <a href="mailto:a.yarmola@student.sumdu.edu.ua" aria-label="Написати електронний лист">
-            a.yarmola@student.sumdu.edu.ua
+  <section class="keywords-section" aria-labelledby="kw-title">
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Ключові слова</p>
+      <h2 class="section-title" id="kw-title">Теги <span class="accent">дослідження</span></h2>
+      <div class="keywords-wrap" role="list" aria-label="Ключові слова дослідження">
+        <span class="keyword" role="listitem">OCR розпізнавання</span>
+        <span class="keyword" role="listitem">TensorFlow.js</span>
+        <span class="keyword" role="listitem">Machine Learning</span>
+        <span class="keyword" role="listitem">Computer Vision</span>
+        <span class="keyword" role="listitem">React SPA</span>
+        <span class="keyword" role="listitem">COCO-SSD</span>
+        <span class="keyword" role="listitem">MobileNet</span>
+        <span class="keyword" role="listitem">Tesseract.js</span>
+        <span class="keyword" role="listitem">GSAP анімації</span>
+        <span class="keyword" role="listitem">NLP аналіз</span>
+        <span class="keyword" role="listitem">Sentiment Analysis</span>
+        <span class="keyword" role="listitem">Object Detection</span>
+        <span class="keyword" role="listitem">Bounding Boxes</span>
+        <span class="keyword" role="listitem">Client-Side AI</span>
+        <span class="keyword" role="listitem">Медіааналіз</span>
+        <span class="keyword" role="listitem">Vite</span>
+        <span class="keyword" role="listitem">TypeScript</span>
+        <span class="keyword" role="listitem">Web Speech API</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <div class="contact-glow" aria-hidden="true"></div>
+    <div class="container">
+      <p class="section-label" aria-hidden="true">// Автор</p>
+      <h2 class="section-title" id="contact-title">Контактна <span class="accent">інформація</span></h2>
+      <div class="contact-card fade-in">
+        <p class="contact-name">Ярмола Альона</p>
+        <p class="contact-role">Студентка групи ІН-21 · Сумський державний університет · 2026</p>
+        <div class="contact-links">
+          <a href="https://github.com/alena597/media-insight-hub" target="_blank" rel="noopener" class="contact-link" aria-label="Репозиторій проєкту на GitHub">
+            <span aria-hidden="true">⌥</span> GitHub репозиторій
           </a>
-        </p>
-        <p><strong>GitHub:</strong>
-          <a href="https://github.com/alena597/media-insight-hub" target="_blank" rel="noopener" aria-label="Репозиторій проєкту на GitHub">
-            github.com/alena597/media-insight-hub
+          <a href="mailto:a.yarmola@student.sumdu.edu.ua" class="contact-link" aria-label="Написати електронний лист">
+            <span aria-hidden="true">✉</span> a.yarmola@student.sumdu.edu.ua
           </a>
-        </p>
-      </address>
-    </section>
-
-  </main>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <footer role="contentinfo">
     <p>© 2026 Ярмола Альона · Сумський державний університет · Кафедра комп'ютерних наук</p>
   </footer>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    function animRing() {
+      rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animRing);
+    }
+    animRing();
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+  </script>
 </body>
 </html>
